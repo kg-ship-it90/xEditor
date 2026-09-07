@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>xEditor Studio</title>
   
-  <!-- Khai báo PWA Manifest -->
   <link rel="manifest" href="manifest.json">
-  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -106,7 +104,6 @@
     .tool-btn { background: none; border: none; color: var(--text-muted); padding: 4px 6px; border-radius: 4px; cursor: pointer; font-size: 11.5px; display: flex; align-items: center; gap: 4px; transition: all 0.15s; }
     .tool-btn:hover:not(:disabled), .tool-btn.active { background-color: var(--bg-hover); color: var(--text-main); }
     
-    /* Search & Replace Widget */
     .find-replace-widget { position: absolute; top: 42px; right: 24px; background-color: #12151e; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65); padding: 8px 10px; display: none; flex-direction: column; gap: 6px; z-index: 40; backdrop-filter: blur(12px); width: 380px; }
     .find-replace-widget.active { display: flex; }
     .fr-row { display: flex; align-items: center; gap: 6px; }
@@ -129,7 +126,6 @@
     #highlight-layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; padding: 16px 18px; font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.6; color: transparent; white-space: pre-wrap; word-wrap: break-word; overflow-y: scroll; pointer-events: none; user-select: none; tab-size: 2; z-index: 1; }
     #highlight-layer::-webkit-scrollbar { display: none; }
     
-    /* Khung viền xanh dương cho kết quả tìm kiếm */
     .find-highlight { border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.2); border-radius: 2px; box-sizing: border-box; }
     .find-highlight.current { border: 2px solid #2563eb; background: rgba(59, 130, 246, 0.35); }
     
@@ -158,7 +154,7 @@
       <button id="btn-new-file" class="btn" title="Tạo tệp mới">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
       </button>
-      <button id="btn-open" class="btn" title="Mở thư mục">
+      <button id="btn-open" class="btn" title="Mở một hoặc nhiều tệp (⌘O)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
       </button>
     </div>
@@ -204,7 +200,6 @@
         <span style="font-weight: 600; font-size: 14px;">Thả tệp vào đây (Mở tab: Drop/tên_tệp)</span>
       </div>
 
-      <!-- SEARCH & REPLACE WIDGET -->
       <div id="fr-widget" class="find-replace-widget">
         <div class="fr-row">
           <button id="fr-toggle-replace" class="fr-icon-btn" title="Hiện/Ẩn dòng Thay thế">
@@ -327,7 +322,6 @@
     let isMatchCase = false;
     let lastSearchedQuery = '';
 
-    // Danh sách loại trừ các tệp binary/media
     const EXCLUDED_EXTS = new Set([
       'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico', 'tiff', 'psd', 'ai', 'heic', 'avif',
       'mp3', 'wav', 'ogg', 'm4a', 'flac', 'aac', 'wma', 'mid',
@@ -337,7 +331,6 @@
       'ttf', 'otf', 'woff', 'woff2', 'eot', 'pdf', 'docx', 'xlsx', 'pptx'
     ]);
 
-    // Bảng cấu hình nhãn và màu sắc cho các đuôi tệp mở rộng
     const EXT_THEMES = {
       html: { label: 'HTML', bg: 'rgba(249, 115, 22, 0.15)', color: '#fb923c' },
       htm:  { label: 'HTML', bg: 'rgba(249, 115, 22, 0.15)', color: '#fb923c' },
@@ -721,26 +714,6 @@
       }
     }
 
-    async function loadWorkspace(dirHandle) {
-      directoryHandle = dirHandle;
-      directoryFileEntries = [];
-      filterInput.value = '';
-      filterInput.disabled = false;
-
-      folderTitleEl.textContent = directoryHandle.name;
-      statusPath.textContent = `Thư mục: /${directoryHandle.name}`;
-
-      for await (const entry of directoryHandle.values()) {
-        if (entry.kind === 'file' && checkValidTextFile(entry.name)) {
-          directoryFileEntries.push(entry);
-        }
-      }
-
-      directoryFileEntries.sort((a, b) => a.name.localeCompare(b.name));
-      renderSidebarTree(directoryFileEntries);
-    }
-
-    // Nút tạo tệp mới với danh mục định dạng mở rộng
     btnNewFile.addEventListener('click', async () => {
       const defaultFileName = `untitled-${newFileCounter++}.txt`;
       
@@ -801,6 +774,71 @@
       openTabs.push(newTab);
       switchTab(hiddenInternalId);
       triggerToast(`Đã tạo tab mới: ${defaultFileName}`);
+    });
+
+    // Mở một hoặc nhiều tệp cụ thể
+    btnOpen.addEventListener('click', async () => {
+      try {
+        if (window.showOpenFilePicker) {
+          const fileHandles = await window.showOpenFilePicker({
+            multiple: true,
+            types: [
+              {
+                description: 'Mọi tệp văn bản / Mã nguồn',
+                accept: {
+                  'text/plain': [
+                    '.txt', '.text', '.log', '.ini', '.env', '.conf',
+                    '.js', '.ts', '.jsx', '.tsx', '.json',
+                    '.html', '.htm', '.css', '.scss',
+                    '.md', '.py', '.java', '.c', '.cpp', '.cs',
+                    '.sql', '.sh', '.yml', '.yaml', '.xml', '.svg'
+                  ]
+                }
+              }
+            ]
+          });
+
+          if (!fileHandles || fileHandles.length === 0) return;
+
+          let lastOpenedId = null;
+          for (const handle of fileHandles) {
+            lastOpenedId = await openFileIntoTab({
+              fileSource: handle,
+              parentDirName: 'Files',
+              isWorkspaceFile: false,
+              isHandle: true
+            });
+          }
+
+          if (lastOpenedId) {
+            switchTab(lastOpenedId);
+            triggerToast(`Đã mở ${fileHandles.length} tệp`);
+          }
+        } else {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.multiple = true;
+          input.onchange = async (e) => {
+            const files = Array.from(e.target.files);
+            let lastOpenedId = null;
+            for (const file of files) {
+              lastOpenedId = await openFileIntoTab({
+                fileSource: file,
+                parentDirName: 'Files',
+                isWorkspaceFile: false,
+                isHandle: false
+              });
+            }
+            if (lastOpenedId) switchTab(lastOpenedId);
+          };
+          input.click();
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error('Lỗi khi chọn tệp:', err);
+          triggerToast('Không thể mở tệp đã chọn!', true);
+        }
+      }
     });
 
     let dragCounter = 0;
@@ -1028,18 +1066,6 @@
       btnToggleSidebar.classList.toggle('active');
     });
 
-    btnOpen.addEventListener('click', async () => {
-      try {
-        const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
-        await loadWorkspace(handle);
-      } catch (err) {
-        if (err.name !== 'AbortError') triggerToast('Không thể mở thư mục', true);
-      }
-    });
-
-    // =======================================================
-    // MODULE TÌM KIẾM & THAY THẾ
-    // =======================================================
     function openFindWidget(focusReplace = false) {
       if (!getActiveTab()) {
         triggerToast('Vui lòng mở một tệp trước!', true);
@@ -1169,7 +1195,6 @@
       }
     }
 
-    // Cuộn đưa kết quả ra chính giữa màn hình
     function jumpToMatch(index, keepInputFocus = true) {
       if (index < 0 || index >= searchMatches.length) return;
       const match = searchMatches[index];
@@ -1338,20 +1363,26 @@
       } else if (isCmdOrCtrl && e.key.toLowerCase() === 'h') {
         e.preventDefault();
         openFindWidget(true);
+      } else if (isCmdOrCtrl && e.key.toLowerCase() === 'o') {
+        e.preventDefault();
+        btnOpen.click();
       } else if (e.key === 'Escape' && frWidget.classList.contains('active')) {
         closeFindWidget();
       }
     });
 
-    // Đăng ký Service Worker
+    // PWA & File Handling API với Focus
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(console.error);
     }
 
-    // Bắt sự kiện double-click mở tệp từ hệ điều hành (File Handling API)
     if ('launchQueue' in window) {
       window.launchQueue.setConsumer(async (launchParams) => {
         if (!launchParams.files.length) return;
+        
+        // Cố gắng focus cửa sổ hiện tại
+        if (window.focus) window.focus();
+
         for (const handle of launchParams.files) {
           await openFileIntoTab({
             fileSource: handle,
