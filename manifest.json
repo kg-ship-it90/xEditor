@@ -16,7 +16,45 @@
     {
       "action": "./index.html",
       "accept": {
-        "text/plain": [".txt", ".js", ".json", ".html", ".css", ".md", ".csv", ".env", ".ts", ".py"]
+        "text/plain": [
+          ".txt", ".text", ".log", ".ini", ".conf", ".cfg", ".env"
+        ],
+        "text/markdown": [
+          ".md", ".markdown"
+        ],
+        "text/javascript": [
+          ".js", ".mjs", ".cjs", ".ts", ".jsx", ".tsx"
+        ],
+        "application/json": [
+          ".json", ".json5"
+        ],
+        "text/html": [
+          ".html", ".htm"
+        ],
+        "text/css": [
+          ".css", ".scss", ".sass", ".less"
+        ],
+        "text/x-python": [
+          ".py"
+        ],
+        "text/x-c": [
+          ".c", ".cpp", ".cc", ".h", ".hpp", ".cs"
+        ],
+        "text/x-java-source": [
+          ".java"
+        ],
+        "application/xml": [
+          ".xml", ".svg"
+        ],
+        "text/yaml": [
+          ".yml", ".yaml"
+        ],
+        "application/sql": [
+          ".sql"
+        ],
+        "text/x-sh": [
+          ".sh", ".bash", ".zsh"
+        ]
       }
     }
   ]
