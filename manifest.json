@@ -1,7 +1,7 @@
 {
   "name": "xEditor Studio",
   "short_name": "xEditor",
-  "description": "Trình chỉnh sửa mã nguồn và văn bản gọn nhẹ trên trình duyệt",
+  "description": "Trình chỉnh sửa mã nguồn và văn bản tinh gọn với hỗ trợ thư mục cục bộ",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
