@@ -12,6 +12,9 @@
       "type": "image/png"
     }
   ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
   "file_handlers": [
     {
       "action": "./index.html",
