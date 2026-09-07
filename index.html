@@ -68,7 +68,7 @@
     .search-box input:focus { border-color: var(--border-focus); }
     .search-box svg { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
     
-    /* Danh sách tệp Sidebar và Thẻ định dạng (Tái sử dụng chuẩn) */
+    /* Danh sách tệp Sidebar và Thẻ định dạng */
     .file-tree { flex: 1; overflow-y: auto; list-style: none; padding: 6px 0; min-width: 240px; }
     .file-item { display: flex; align-items: center; padding: 7px 14px; font-size: 12.5px; color: var(--text-dim); cursor: pointer; user-select: none; gap: 9px; transition: all 0.12s ease; border-left: 2px solid transparent; }
     .file-item:hover { background-color: var(--bg-hover); color: var(--text-main); }
@@ -359,7 +359,7 @@
       'ttf', 'otf', 'woff', 'woff2', 'eot', 'pdf', 'docx', 'xlsx', 'pptx'
     ]);
 
-    // Bảng cấu hình giao diện định dạng tệp từ bản xEditor.html
+    // Bảng cấu hình định dạng màu sắc cho file tag
     const EXT_THEMES = {
       html: { label: 'HTML', bg: 'rgba(249, 115, 22, 0.15)', color: '#fb923c' },
       htm:  { label: 'HTML', bg: 'rgba(249, 115, 22, 0.15)', color: '#fb923c' },
@@ -464,7 +464,6 @@
       return !EXCLUDED_EXTS.has(extractExt(filename));
     }
 
-    // Render badge định dạng thẻ tệp đẹp mắt theo bản xEditor.html
     function generateBadgeHTML(filename) {
       const ext = extractExt(filename);
       const conf = EXT_THEMES[ext] || { 
@@ -494,7 +493,6 @@
       }
     });
 
-    // Render danh sách thư mục hiển thị thẻ định dạng tệp chuẩn
     function renderSidebarTree(entries) {
       fileListEl.innerHTML = '';
       if (!directoryHandle) {
@@ -523,7 +521,6 @@
           li.classList.add('active');
         }
 
-        // Tích hợp badge và tên tệp
         li.innerHTML = `
           ${generateBadgeHTML(entry.name)}
           <span class="file-name" title="${entry.name}">${entry.name}</span>
@@ -920,7 +917,6 @@
       }
     });
 
-    // Mở Thư Mục: Chỉ quét các tệp tại cấp gốc của thư mục, bỏ qua thư mục con
     async function handleOpenFolder() {
       try {
         if (window.showDirectoryPicker) {
@@ -955,7 +951,6 @@
           statusPath.textContent = `Thư mục: /${dirHandle.name}`;
           triggerToast(`Đã nạp ${entries.length} tệp từ "${dirHandle.name}"`);
         } else {
-          // Fallback với webkitdirectory
           const input = document.createElement('input');
           input.type = 'file';
           input.webkitdirectory = true;
