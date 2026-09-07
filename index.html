@@ -22,14 +22,18 @@
       --bg-gutter: #0f121a;
       --bg-hover: rgba(255, 255, 255, 0.04);
       --bg-active: rgba(99, 102, 241, 0.12);
+      
       --border: #1e2230;
       --border-focus: #6366f1;
+      
       --text-main: #f1f5f9;
       --text-muted: #64748b;
       --text-dim: #94a3b8;
+      
       --primary: #6366f1;
       --primary-hover: #4f46e5;
       --primary-glow: rgba(99, 102, 241, 0.35);
+      
       --emerald: #10b981;
       --amber: #f59e0b;
       --rose: #f43f5e;
@@ -102,7 +106,7 @@
     .tool-btn { background: none; border: none; color: var(--text-muted); padding: 4px 6px; border-radius: 4px; cursor: pointer; font-size: 11.5px; display: flex; align-items: center; gap: 4px; transition: all 0.15s; }
     .tool-btn:hover:not(:disabled), .tool-btn.active { background-color: var(--bg-hover); color: var(--text-main); }
     
-    /* --- SEARCH & REPLACE FLOATING WIDGET --- */
+    /* Search & Replace Widget */
     .find-replace-widget { position: absolute; top: 42px; right: 24px; background-color: #12151e; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65); padding: 8px 10px; display: none; flex-direction: column; gap: 6px; z-index: 40; backdrop-filter: blur(12px); width: 380px; }
     .find-replace-widget.active { display: flex; }
     .fr-row { display: flex; align-items: center; gap: 6px; }
@@ -125,9 +129,9 @@
     #highlight-layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; padding: 16px 18px; font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.6; color: transparent; white-space: pre-wrap; word-wrap: break-word; overflow-y: scroll; pointer-events: none; user-select: none; tab-size: 2; z-index: 1; }
     #highlight-layer::-webkit-scrollbar { display: none; }
     
-    /* Khung viền đơn thuần cho tìm kiếm */
+    /* Khung viền xanh dương cho kết quả tìm kiếm */
     .find-highlight { border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.2); border-radius: 2px; box-sizing: border-box; }
-    .find-highlight.current { border: 2px solid #2563eb; background: rgba(59, 130, 246, 0.3); }
+    .find-highlight.current { border: 2px solid #2563eb; background: rgba(59, 130, 246, 0.35); }
     
     #editor { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: transparent; color: #e2e8f0; font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.6; padding: 16px 18px; border: none; outline: none; resize: none; tab-size: 2; white-space: pre-wrap; word-wrap: break-word; overflow-y: scroll; z-index: 2; }
     #editor:disabled { color: #475569; cursor: not-allowed; }
@@ -254,7 +258,7 @@
         <div id="line-gutter" class="line-gutter">1</div>
         <div class="editor-wrapper">
           <div id="highlight-layer"></div>
-          <textarea id="editor" placeholder="// Xin chào!..." disabled spellcheck="false"></textarea>
+          <textarea id="editor" placeholder="// Xin chào! Hãy mở tệp hoặc thư mục để bắt đầu làm việc..." disabled spellcheck="false"></textarea>
         </div>
       </div>
 
@@ -323,6 +327,7 @@
     let isMatchCase = false;
     let lastSearchedQuery = '';
 
+    // Danh sách loại trừ các tệp binary/media
     const EXCLUDED_EXTS = new Set([
       'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico', 'tiff', 'psd', 'ai', 'heic', 'avif',
       'mp3', 'wav', 'ogg', 'm4a', 'flac', 'aac', 'wma', 'mid',
@@ -332,6 +337,7 @@
       'ttf', 'otf', 'woff', 'woff2', 'eot', 'pdf', 'docx', 'xlsx', 'pptx'
     ]);
 
+    // Bảng cấu hình nhãn và màu sắc cho các đuôi tệp mở rộng
     const EXT_THEMES = {
       html: { label: 'HTML', bg: 'rgba(249, 115, 22, 0.15)', color: '#fb923c' },
       htm:  { label: 'HTML', bg: 'rgba(249, 115, 22, 0.15)', color: '#fb923c' },
@@ -346,6 +352,7 @@
       php:  { label: 'PHP',  bg: 'rgba(168, 85, 247, 0.15)', color: '#c084fc' },
       java: { label: 'JAVA', bg: 'rgba(239, 68, 68, 0.15)',  color: '#f87171' },
       cpp:  { label: 'C++',  bg: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa' },
+      c:    { label: 'C',    bg: 'rgba(107, 114, 128, 0.15)', color: '#9ca3af' },
       cs:   { label: 'C#',   bg: 'rgba(147, 51, 234, 0.15)', color: '#c084fc' },
       go:   { label: 'GO',   bg: 'rgba(6, 182, 212, 0.15)',  color: '#22d3ee' },
       rs:   { label: 'RUST', bg: 'rgba(251, 146, 60, 0.15)', color: '#fb923c' },
@@ -733,6 +740,7 @@
       renderSidebarTree(directoryFileEntries);
     }
 
+    // Nút tạo tệp mới với danh mục định dạng mở rộng
     btnNewFile.addEventListener('click', async () => {
       const defaultFileName = `untitled-${newFileCounter++}.txt`;
       
@@ -741,10 +749,20 @@
           const handle = await window.showSaveFilePicker({
             suggestedName: defaultFileName,
             startIn: 'downloads',
-            types: [{
-              description: 'Text Documents (*.txt)',
-              accept: { 'text/plain': ['.txt'] }
-            }]
+            types: [
+              {
+                description: 'Mọi tệp văn bản / Mã nguồn',
+                accept: {
+                  'text/plain': [
+                    '.txt', '.text', '.log', '.ini', '.env', '.conf',
+                    '.js', '.ts', '.jsx', '.tsx', '.json',
+                    '.html', '.htm', '.css', '.scss',
+                    '.md', '.py', '.java', '.c', '.cpp', '.cs',
+                    '.sql', '.sh', '.yml', '.yaml', '.xml', '.svg'
+                  ]
+                }
+              }
+            ]
           });
 
           const writable = await handle.createWritable();
@@ -933,10 +951,20 @@
           const handle = await window.showSaveFilePicker({
             suggestedName: currentTab.fileName,
             startIn: 'downloads',
-            types: [{
-              description: 'Text Documents (*.txt)',
-              accept: { 'text/plain': ['.txt'] }
-            }]
+            types: [
+              {
+                description: 'Mọi tệp văn bản / Mã nguồn',
+                accept: {
+                  'text/plain': [
+                    '.txt', '.text', '.log', '.ini', '.env', '.conf',
+                    '.js', '.ts', '.jsx', '.tsx', '.json',
+                    '.html', '.htm', '.css', '.scss',
+                    '.md', '.py', '.java', '.c', '.cpp', '.cs',
+                    '.sql', '.sh', '.yml', '.yaml', '.xml', '.svg'
+                  ]
+                }
+              }
+            ]
           });
 
           const writable = await handle.createWritable();
@@ -1009,6 +1037,9 @@
       }
     });
 
+    // =======================================================
+    // MODULE TÌM KIẾM & THAY THẾ
+    // =======================================================
     function openFindWidget(focusReplace = false) {
       if (!getActiveTab()) {
         triggerToast('Vui lòng mở một tệp trước!', true);
@@ -1138,6 +1169,7 @@
       }
     }
 
+    // Cuộn đưa kết quả ra chính giữa màn hình
     function jumpToMatch(index, keepInputFocus = true) {
       if (index < 0 || index >= searchMatches.length) return;
       const match = searchMatches[index];
@@ -1311,11 +1343,12 @@
       }
     });
 
-    // PWA & File Handling API
+    // Đăng ký Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(console.error);
     }
 
+    // Bắt sự kiện double-click mở tệp từ hệ điều hành (File Handling API)
     if ('launchQueue' in window) {
       window.launchQueue.setConsumer(async (launchParams) => {
         if (!launchParams.files.length) return;
