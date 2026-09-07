@@ -1,15 +1,18 @@
 {
   "name": "xEditor Studio",
   "short_name": "xEditor",
-  "start_url": "./index.html",
+  "description": "Trình chỉnh sửa mã nguồn và văn bản gọn nhẹ trên trình duyệt",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "theme_color": "#0b0d13",
-  "background_color": "#0b0d13",
+  "theme_color": "#090a0f",
+  "background_color": "#090a0f",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/1006/1006509.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
   "launch_handler": {
@@ -17,7 +20,7 @@
   },
   "file_handlers": [
     {
-      "action": "./index.html",
+      "action": "./",
       "accept": {
         "text/plain": [
           ".txt", ".text", ".log", ".ini", ".conf", ".cfg", ".env"
@@ -45,6 +48,15 @@
         ],
         "text/x-java-source": [
           ".java"
+        ],
+        "text/x-php": [
+          ".php"
+        ],
+        "text/x-rust": [
+          ".rs"
+        ],
+        "text/x-go": [
+          ".go"
         ],
         "application/xml": [
           ".xml", ".svg"
