@@ -94,7 +94,6 @@
     
     .editor-top-nav { height: 38px; background-color: var(--bg-sidebar); border-bottom: 1px solid var(--border); display: flex; align-items: stretch; justify-content: space-between; padding: 0; overflow: hidden; }
     
-    /* Nút đóng tất cả nằm ngay trên cột số dòng (Line Gutter = 48px) */
     .gutter-action-zone { width: 48px; min-width: 48px; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--border); background-color: var(--bg-sidebar); flex-shrink: 0; z-index: 2; }
 
     .tab-list { display: flex; align-items: flex-end; overflow-x: auto; overflow-y: hidden; flex: 1; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
@@ -114,9 +113,187 @@
     .dirty-dot.active { display: inline-block; }
     
     .editor-quick-tools { display: flex; align-items: center; gap: 4px; padding: 0 8px; background-color: var(--bg-sidebar); border-left: 1px solid var(--border); z-index: 2; }
-    .tool-btn { background: none; border: none; color: var(--text-muted); padding: 4px 6px; border-radius: 4px; cursor: pointer; font-size: 11.5px; display: flex; align-items: center; gap: 4px; transition: all 0.15s; }
+    .tool-btn { background: none; border: none; color: var(--text-muted); padding: 4px 6px; border-radius: 4px; cursor: pointer; font-size: 11.5px; display: flex; align-items: center; gap: 4px; transition: all 0.15s; font-family: inherit; }
     .tool-btn:hover:not(:disabled), .tool-btn.active { background-color: var(--bg-hover); color: var(--text-main); }
     .tool-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* Thanh Batch Replace Bar */
+    .batch-replace-bar {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background-color: #11141f;
+      border-bottom: 1px solid var(--border);
+      z-index: 20;
+      position: relative;
+    }
+    .batch-replace-bar.active {
+      display: flex;
+    }
+    .batch-btn-play {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background-color: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      outline: none;
+      flex-shrink: 0;
+    }
+    .batch-btn-play:hover:not(:disabled) {
+      background-color: var(--bg-hover);
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+    .batch-btn-play:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .batch-btn-play.running {
+      background: linear-gradient(135deg, #10b981, #06b6d4) !important;
+      color: #ffffff !important;
+      border-color: transparent !important;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.65);
+      animation: pulsePlay 1.2s infinite ease-in-out;
+    }
+    @keyframes pulsePlay {
+      0% { transform: scale(1); filter: brightness(1); }
+      50% { transform: scale(1.08); filter: brightness(1.25); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+    .batch-input-wrap {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .batch-input {
+      width: 100%;
+      background-color: var(--bg-app);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 32px 6px 10px;
+      font-size: 12.5px;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .batch-input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.18);
+    }
+    
+    /* Nút Icon Lịch sử trong ô Input */
+    .batch-btn-history {
+      position: absolute;
+      right: 5px;
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .batch-btn-history:hover, .batch-btn-history.active {
+      color: var(--text-main);
+      background-color: var(--bg-hover);
+    }
+
+    /* Menu Popup danh sách lịch sử */
+    .batch-history-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 48px;
+      right: 48px;
+      background-color: #12151e;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.65);
+      z-index: 50;
+      max-height: 220px;
+      overflow-y: auto;
+      display: none;
+      flex-direction: column;
+    }
+    .batch-history-dropdown.show {
+      display: flex;
+    }
+    .batch-history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+    .batch-history-clear {
+      color: var(--rose);
+      cursor: pointer;
+      font-size: 10.5px;
+      border: none;
+      background: none;
+    }
+    .batch-history-clear:hover {
+      text-decoration: underline;
+    }
+    .batch-history-item {
+      padding: 7px 12px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-main);
+      cursor: pointer;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      transition: background-color 0.12s;
+    }
+    .batch-history-item:hover {
+      background-color: var(--bg-active);
+      color: #fff;
+    }
+    .batch-history-empty {
+      padding: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      font-style: italic;
+    }
+
+    .batch-btn-close {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .batch-btn-close:hover {
+      background-color: rgba(244, 63, 94, 0.15);
+      color: var(--rose);
+      border-color: rgba(244, 63, 94, 0.25);
+    }
     
     .find-replace-widget { position: absolute; top: 42px; right: 24px; background-color: #12151e; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65); padding: 8px 10px; display: none; flex-direction: column; gap: 6px; z-index: 40; backdrop-filter: blur(12px); width: 380px; }
     .find-replace-widget.active { display: flex; }
@@ -144,7 +321,6 @@
     .find-highlight.current { border: 2px solid #2563eb; background: rgba(59, 130, 246, 0.35); }
     
     #editor { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: transparent; color: #e2e8f0; font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.6; padding: 16px 18px; border: none; outline: none; resize: none; tab-size: 2; white-space: pre-wrap; word-wrap: break-word; overflow-y: scroll; z-index: 2; }
-    #editor:disabled { color: #475569; cursor: not-allowed; }
     
     .drop-overlay { position: absolute; inset: 0; background: rgba(12, 14, 20, 0.85); border: 2px dashed var(--primary); backdrop-filter: blur(4px); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px; z-index: 50; pointer-events: none; color: var(--text-main); transition: opacity 0.2s; }
     .drop-overlay.active { display: flex; }
@@ -168,12 +344,10 @@
       
       <hr class="activity-divider" />
       
-      <!-- Nút Tạo tệp mới -->
-      <button id="btn-new-file" class="activity-icon-btn" title="Tạo tệp mới">
+      <button id="btn-new-file" class="activity-icon-btn" title="Tạo tệp nháp mới">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
       </button>
       
-      <!-- Nút Mở tệp tin -->
       <button id="btn-open" class="activity-icon-btn" title="Mở tệp tin (Ctrl+O / ⌘O)">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
@@ -181,7 +355,6 @@
         </svg>
       </button>
 
-      <!-- Nút Mở thư mục (Chỉ quét cấp gốc của thư mục) -->
       <button id="btn-open-folder" class="activity-icon-btn" title="Mở thư mục (Ctrl+Shift+O / ⌘⇧O)">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/>
@@ -189,8 +362,7 @@
         </svg>
       </button>
 
-      <!-- Nút Lưu tệp -->
-      <button id="btn-save" class="activity-icon-btn" title="Lưu tệp (Ctrl+S / ⌘S)" disabled>
+      <button id="btn-save" class="activity-icon-btn" title="Lưu tệp (Ctrl+S / ⌘S)">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
       </button>
 
@@ -201,7 +373,7 @@
       </button>
     </div>
 
-    <!-- Thanh Sidebar Danh sách tệp -->
+    <!-- Thanh Sidebar -->
     <aside id="sidebar">
       <div class="sidebar-top">
         <div class="folder-meta">
@@ -218,7 +390,6 @@
       </ul>
     </aside>
 
-    <!-- Resizer kéo mở rộng -->
     <div id="resizer" class="resizer"></div>
 
     <section class="editor-stage" id="drop-target-zone">
@@ -231,6 +402,7 @@
         <span style="font-weight: 600; font-size: 14px;">Thả tệp vào đây</span>
       </div>
 
+      <!-- Tìm kiếm & Thay thế thông thường -->
       <div id="fr-widget" class="find-replace-widget">
         <div class="fr-row">
           <button id="fr-toggle-replace" class="fr-icon-btn" title="Hiện/Ẩn dòng Thay thế">
@@ -265,7 +437,6 @@
       </div>
 
       <div class="editor-top-nav">
-        <!-- Nút X: Đóng tất cả tài liệu đã lưu, nằm ngay trên cột số line (line gutter) -->
         <div class="gutter-action-zone">
           <button id="btn-close-all" class="tool-btn" title="Đóng tất cả tài liệu đã lưu" disabled>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -275,23 +446,72 @@
         <div class="tab-list" id="tab-list"></div>
         
         <div class="editor-quick-tools">
+          <button id="btn-toggle-batch" class="tool-btn" title="Thay thế hàng loạt (Cú pháp: {A|B}{C|D})">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <polyline points="16 18 22 12 16 6"/>
+              <polyline points="8 6 2 12 8 18"/>
+            </svg>
+            <span>&lt;/&gt;</span>
+          </button>
+          
           <button id="btn-toggle-find" class="tool-btn" title="Tìm kiếm & Thay thế (⌘F / Ctrl+F)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Tìm
           </button>
           <button id="btn-format-json" class="tool-btn" title="Định dạng JSON" style="display: none;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> Format
           </button>
-          <button id="btn-copy-all" class="tool-btn" title="Sao chép toàn bộ" disabled>
+          <button id="btn-copy-all" class="tool-btn" title="Sao chép toàn bộ">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy
           </button>
         </div>
+      </div>
+
+      <!-- THANH BATCH REPLACE NÂNG CAO -->
+      <div id="batch-replace-bar" class="batch-replace-bar">
+        <button id="btn-batch-play" class="batch-btn-play" title="Bắt đầu thay thế lần lượt">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+        </button>
+
+        <div class="batch-input-wrap">
+          <input 
+            type="text" 
+            id="batch-replace-input" 
+            class="batch-input" 
+            placeholder="Cú pháp: {A|B}{C|D} (hoặc A/B; C/D) - Nhấn ↑/↓ để duyệt lịch sử" 
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button id="btn-batch-history" class="batch-btn-history" title="Lịch sử các chuỗi thay thế gần nhất">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </button>
+        </div>
+
+        <div id="batch-history-dropdown" class="batch-history-dropdown">
+          <div class="batch-history-header">
+            <span>CHUỖI THAY THẾ GẦN ĐÂY</span>
+            <button id="btn-clear-history" class="batch-history-clear">Xóa lịch sử</button>
+          </div>
+          <div id="batch-history-list"></div>
+        </div>
+
+        <button id="btn-batch-close" class="batch-btn-close" title="Tắt tính năng thay thế hàng loạt">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
       </div>
 
       <div class="code-canvas">
         <div id="line-gutter" class="line-gutter">1</div>
         <div class="editor-wrapper">
           <div id="highlight-layer"></div>
-          <textarea id="editor" placeholder="// Xin chào! Hãy mở tệp hoặc thư mục để bắt đầu làm việc..." disabled spellcheck="false"></textarea>
+          <textarea id="editor" placeholder="Nhập nội dung văn bản tại đây..." spellcheck="false"></textarea>
         </div>
       </div>
 
@@ -322,6 +542,17 @@
     const btnCloseAll = document.getElementById('btn-close-all');
     const btnToggleFind = document.getElementById('btn-toggle-find');
     
+    // Batch Replace Elements
+    const btnToggleBatch = document.getElementById('btn-toggle-batch');
+    const batchReplaceBar = document.getElementById('batch-replace-bar');
+    const btnBatchPlay = document.getElementById('btn-batch-play');
+    const batchReplaceInput = document.getElementById('batch-replace-input');
+    const btnBatchClose = document.getElementById('btn-batch-close');
+    const btnBatchHistory = document.getElementById('btn-batch-history');
+    const batchHistoryDropdown = document.getElementById('batch-history-dropdown');
+    const batchHistoryList = document.getElementById('batch-history-list');
+    const btnClearHistory = document.getElementById('btn-clear-history');
+
     const sidebar = document.getElementById('sidebar');
     const resizer = document.getElementById('resizer');
     const filterInput = document.getElementById('filter-input');
@@ -355,13 +586,25 @@
     const frReplaceOne = document.getElementById('fr-replace-one');
     const frReplaceAll = document.getElementById('fr-replace-all');
 
-    let newFileCounter = 1;
     let draggedTabId = null;
 
     let searchMatches = [];
     let currentMatchIndex = -1;
     let isMatchCase = false;
     let lastSearchedQuery = '';
+    let isBatchRunning = false;
+
+    // Quản lý lịch sử Batch Replace
+    const STORAGE_KEY_BATCH_HISTORY = 'xeditor_batch_history';
+    let batchHistory = [];
+    let historyNavIndex = -1;
+
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_BATCH_HISTORY);
+      if (stored) batchHistory = JSON.parse(stored);
+    } catch(e) {
+      batchHistory = [];
+    }
 
     const EXCLUDED_EXTS = new Set([
       'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico', 'tiff', 'psd', 'ai', 'heic', 'avif',
@@ -372,7 +615,6 @@
       'ttf', 'otf', 'woff', 'woff2', 'eot', 'pdf', 'docx', 'xlsx', 'pptx'
     ]);
 
-    // Bảng cấu hình định dạng màu sắc cho file tag
     const EXT_THEMES = {
       html: { label: 'HTML', bg: 'rgba(249, 115, 22, 0.15)', color: '#fb923c' },
       htm:  { label: 'HTML', bg: 'rgba(249, 115, 22, 0.15)', color: '#fb923c' },
@@ -420,7 +662,25 @@
       return `${parentDirName}/${fileName}${preview}`;
     }
 
-    // Kéo giãn sidebar
+    // Sinh tên file mặc định: yyyymmdd.hhmm.[Dòng_đầu_tiên].txt
+    function generateDefaultFileName(content) {
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const yyyy = now.getFullYear();
+      const mm = pad(now.getMonth() + 1);
+      const dd = pad(now.getDate());
+      const hh = pad(now.getHours());
+      const min = pad(now.getMinutes());
+      const timePrefix = `${yyyy}${mm}${dd}.${hh}${min}`;
+
+      const firstLine = (content || '').split(/\r?\n/)[0].trim();
+      if (firstLine) {
+        const sanitized = firstLine.replace(/[\\/:*?"<>|]/g, '').trim().slice(0, 50);
+        return `${timePrefix}.${sanitized}.txt`;
+      }
+      return `${timePrefix}.txt`;
+    }
+
     let isResizing = false;
     resizer.addEventListener('mousedown', (e) => {
       isResizing = true;
@@ -433,10 +693,8 @@
       if (!isResizing) return;
       const activityBarWidth = 48; 
       let newWidth = e.clientX - activityBarWidth;
-      
       if (newWidth < 150) newWidth = 150;
       if (newWidth > 600) newWidth = 600;
-      
       sidebar.style.width = `${newWidth}px`;
     });
     
@@ -644,7 +902,6 @@
         tabListEl.appendChild(tabEl);
       });
 
-      // Cập nhật trạng thái nút Close All (chỉ bật khi có ít nhất một tab đã lưu có thể đóng)
       const hasCleanTabs = openTabs.some(tab => !tab.isDirty);
       btnCloseAll.disabled = !hasCleanTabs;
 
@@ -707,9 +964,9 @@
         }
       } else {
         editor.value = '';
-        editor.disabled = true;
-        btnCopyAll.disabled = true;
-        btnSave.disabled = true;
+        editor.disabled = false;
+        btnCopyAll.disabled = false;
+        btnSave.disabled = false;
         statusPath.textContent = directoryHandle ? `Thư mục: /${directoryHandle.name}` : 'Hệ thống: Sẵn sàng';
         fileSyntax.textContent = 'Plain Text';
         btnFormatJson.style.display = 'none';
@@ -722,14 +979,17 @@
       refreshMetrics();
     }
 
-    function closeTab(tabId) {
+    async function closeTab(tabId) {
       const tabIndex = openTabs.findIndex(t => t.id === tabId);
       if (tabIndex === -1) return;
 
       const tab = openTabs[tabIndex];
       if (tab.isDirty) {
-        const confirmClose = confirm(`Tệp "${tab.displayTitle}" có chỉnh sửa chưa lưu. Bạn có chắc muốn đóng?`);
-        if (!confirmClose) return;
+        const askSave = confirm(`Tệp "${tab.displayTitle}" chưa được lưu.\nBạn có muốn lưu lại trước khi đóng không?`);
+        if (askSave) {
+          const saved = await performSave(tab);
+          if (!saved) return;
+        }
       }
 
       openTabs.splice(tabIndex, 1);
@@ -739,14 +999,13 @@
           const nextIndex = Math.max(0, tabIndex - 1);
           switchTab(openTabs[nextIndex].id);
         } else {
-          switchTab(null);
+          createScratchTab('');
         }
       } else {
         renderTabs();
       }
     }
 
-    // Đóng tất cả các tài liệu ngoại trừ tài liệu chưa lưu (dirty tabs)
     function closeAllSavedTabs() {
       const currentTab = getActiveTab();
       if (currentTab) {
@@ -771,7 +1030,7 @@
         if (openTabs.length > 0) {
           switchTab(openTabs[0].id);
         } else {
-          switchTab(null);
+          createScratchTab('');
         }
       } else {
         renderTabs();
@@ -820,6 +1079,11 @@
           }
         }
 
+        // Tự động thay thế tab nháp trống đầu tiên nếu chưa gõ gì
+        if (openTabs.length === 1 && !openTabs[0].handle && !openTabs[0].content && !openTabs[0].isDirty) {
+          openTabs = [];
+        }
+
         const hiddenInternalId = generateUniqueTabId();
 
         const newTab = {
@@ -846,66 +1110,33 @@
       }
     }
 
-    btnNewFile.addEventListener('click', async () => {
-      const defaultFileName = `untitled-${newFileCounter++}.txt`;
-      
-      if (window.showSaveFilePicker) {
-        try {
-          const handle = await window.showSaveFilePicker({
-            suggestedName: defaultFileName,
-            startIn: 'downloads',
-            types: [
-              {
-                description: 'Mọi tệp văn bản / Mã nguồn',
-                accept: {
-                  'text/plain': [
-                    '.txt', '.text', '.log', '.ini', '.env', '.conf',
-                    '.js', '.ts', '.jsx', '.tsx', '.json',
-                    '.html', '.htm', '.css', '.scss',
-                    '.md', '.py', '.java', '.c', '.cpp', '.cs',
-                    '.sql', '.sh', '.yml', '.yaml', '.xml', '.svg'
-                  ]
-                }
-              }
-            ]
-          });
-
-          const writable = await handle.createWritable();
-          await writable.write('');
-          await writable.close();
-
-          await openFileIntoTab({
-            fileSource: handle,
-            parentDirName: 'Downloads',
-            isWorkspaceFile: false,
-            isHandle: true
-          });
-          triggerToast(`Đã tạo: ${handle.name}`);
-          return;
-        } catch (err) {
-          if (err.name === 'AbortError') return;
-        }
-      }
-
+    // Tạo nhanh một tab nháp rỗng để người dùng nhập liệu ngay mà chưa cần chọn chỗ lưu
+    function createScratchTab(initialText = '') {
       const hiddenInternalId = generateUniqueTabId();
-      const newTab = {
+      const scratchTab = {
         id: hiddenInternalId,
-        fileName: defaultFileName,
-        parentDirName: 'Downloads',
-        displayTitle: generateDisplayTitle('Downloads', defaultFileName, ''),
-        content: '',
+        fileName: 'untitled.txt',
+        parentDirName: 'Draft',
+        displayTitle: generateDisplayTitle('Draft', 'untitled.txt', initialText),
+        content: initialText,
         initialContent: '',
         selectionStart: 0,
         selectionEnd: 0,
         scrollTop: 0,
         handle: null,
         isWorkspaceFile: false,
-        isDirty: true
+        isDirty: initialText.length > 0
       };
 
-      openTabs.push(newTab);
+      openTabs.push(scratchTab);
       switchTab(hiddenInternalId);
-      triggerToast(`Đã tạo tab mới: ${defaultFileName}`);
+      return scratchTab;
+    }
+
+    btnNewFile.addEventListener('click', () => {
+      createScratchTab('');
+      editor.focus();
+      triggerToast('Đã tạo tab nháp mới');
     });
 
     btnOpen.addEventListener('click', async () => {
@@ -1126,9 +1357,25 @@
       }
     });
 
+    // Xử lý phím TAB trong editor
+    editor.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const tabCharacter = '\t';
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+
+        editor.value = editor.value.substring(0, start) + tabCharacter + editor.value.substring(end);
+        editor.selectionStart = editor.selectionEnd = start + tabCharacter.length;
+        editor.dispatchEvent(new Event('input'));
+      }
+    });
+
     editor.addEventListener('input', () => {
-      const currentTab = getActiveTab();
-      if (!currentTab) return;
+      let currentTab = getActiveTab();
+      if (!currentTab) {
+        currentTab = createScratchTab(editor.value);
+      }
 
       currentTab.content = editor.value;
       currentTab.isDirty = currentTab.content !== currentTab.initialContent;
@@ -1175,87 +1422,89 @@
     editor.addEventListener('keyup', refreshMetrics);
     editor.addEventListener('click', refreshMetrics);
 
-    async function performSave() {
-      const currentTab = getActiveTab();
-      if (!currentTab) return;
+    // Lưu file: Chỉ hiện hộp thoại khi nhấn lưu hoặc tắt tab chưa lưu
+    async function performSave(tabToSave = null) {
+      const currentTab = tabToSave || getActiveTab();
+      if (!currentTab) return false;
+
+      const contentToSave = (currentTab.id === activeTabId) ? editor.value : currentTab.content;
 
       if (currentTab.handle) {
         try {
           const hasPermission = await verifyPermission(currentTab.handle, true);
           if (!hasPermission) {
             triggerToast('Chưa được cấp quyền ghi vào tệp!', true);
-            return;
+            return false;
           }
 
           const writable = await currentTab.handle.createWritable();
-          await writable.write(editor.value);
+          await writable.write(contentToSave);
           await writable.close();
 
-          currentTab.initialContent = editor.value;
+          currentTab.initialContent = contentToSave;
           currentTab.isDirty = false;
           updateTabDirtyUI(currentTab.id, false);
           triggerToast(`Đã lưu "${currentTab.fileName}"`);
-          return;
+          return true;
         } catch (err) {
           console.error('Lỗi khi ghi tệp gốc:', err);
           triggerToast('Ghi tệp gốc thất bại!', true);
-          return;
+          return false;
         }
       }
+
+      // Tạo tên gợi ý: yyyymmdd.hhmm.[dòng đầu tiên].txt
+      const suggestedName = generateDefaultFileName(contentToSave);
 
       if (window.showSaveFilePicker) {
         try {
           const handle = await window.showSaveFilePicker({
-            suggestedName: currentTab.fileName,
-            startIn: 'downloads',
+            suggestedName: suggestedName,
+            startIn: 'documents',
             types: [
               {
-                description: 'Mọi tệp văn bản / Mã nguồn',
-                accept: {
-                  'text/plain': [
-                    '.txt', '.text', '.log', '.ini', '.env', '.conf',
-                    '.js', '.ts', '.jsx', '.tsx', '.json',
-                    '.html', '.htm', '.css', '.scss',
-                    '.md', '.py', '.java', '.c', '.cpp', '.cs',
-                    '.sql', '.sh', '.yml', '.yaml', '.xml', '.svg'
-                  ]
-                }
+                description: 'Văn bản Text (.txt)',
+                accept: { 'text/plain': ['.txt'] }
               }
             ]
           });
 
           const writable = await handle.createWritable();
-          await writable.write(editor.value);
+          await writable.write(contentToSave);
           await writable.close();
 
           currentTab.handle = handle;
           currentTab.fileName = handle.name;
-          currentTab.parentDirName = 'Downloads';
-          currentTab.initialContent = editor.value;
+          currentTab.parentDirName = 'Local';
+          currentTab.initialContent = contentToSave;
           currentTab.isDirty = false;
-          currentTab.displayTitle = generateDisplayTitle('Downloads', handle.name, editor.value);
+          currentTab.displayTitle = generateDisplayTitle('Local', handle.name, contentToSave);
           
           renderTabs();
           triggerToast(`Đã lưu tệp: ${handle.name}`);
+          return true;
         } catch (err) {
           if (err.name !== 'AbortError') triggerToast('Không thể lưu tệp!', true);
+          return false;
         }
       } else {
-        const blob = new Blob([editor.value], { type: 'text/plain;charset=utf-8' });
+        const blob = new Blob([contentToSave], { type: 'text/plain;charset=utf-8' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = currentTab.fileName;
+        a.download = suggestedName;
         a.click();
         URL.revokeObjectURL(a.href);
 
-        currentTab.initialContent = editor.value;
+        currentTab.fileName = suggestedName;
+        currentTab.initialContent = contentToSave;
         currentTab.isDirty = false;
         updateTabDirtyUI(currentTab.id, false);
-        triggerToast(`Đã tải về: ${currentTab.fileName}`);
+        triggerToast(`Đã tải về: ${suggestedName}`);
+        return true;
       }
     }
 
-    btnSave.addEventListener('click', performSave);
+    btnSave.addEventListener('click', () => performSave());
 
     btnCopyAll.addEventListener('click', () => {
       navigator.clipboard.writeText(editor.value);
@@ -1286,6 +1535,234 @@
       btnToggleSidebar.classList.toggle('active');
     });
 
+    // ==========================================
+    // LOGIC BATCH REPLACE & LỊCH SỬ CHUỖI THAY THẾ
+    // ==========================================
+    function saveBatchPatternToHistory(pattern) {
+      if (!pattern || !pattern.trim()) return;
+      const clean = pattern.trim();
+      batchHistory = batchHistory.filter(item => item !== clean);
+      batchHistory.unshift(clean);
+      if (batchHistory.length > 25) batchHistory.pop();
+      
+      try {
+        localStorage.setItem(STORAGE_KEY_BATCH_HISTORY, JSON.stringify(batchHistory));
+      } catch (e) {
+        console.warn('Không thể ghi lịch sử vào localStorage:', e);
+      }
+    }
+
+    function renderBatchHistoryDropdown() {
+      batchHistoryList.innerHTML = '';
+      if (batchHistory.length === 0) {
+        batchHistoryList.innerHTML = '<div class="batch-history-empty">Chưa có lịch sử chuỗi thay thế</div>';
+        return;
+      }
+
+      batchHistory.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'batch-history-item';
+        div.textContent = item;
+        div.title = item;
+        div.addEventListener('click', () => {
+          batchReplaceInput.value = item;
+          batchHistoryDropdown.classList.remove('show');
+          btnBatchHistory.classList.remove('active');
+          batchReplaceInput.focus();
+        });
+        batchHistoryList.appendChild(div);
+      });
+    }
+
+    btnBatchHistory.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = batchHistoryDropdown.classList.contains('show');
+      if (isOpen) {
+        batchHistoryDropdown.classList.remove('show');
+        btnBatchHistory.classList.remove('active');
+      } else {
+        renderBatchHistoryDropdown();
+        batchHistoryDropdown.classList.add('show');
+        btnBatchHistory.classList.add('active');
+      }
+    });
+
+    btnClearHistory.addEventListener('click', (e) => {
+      e.stopPropagation();
+      batchHistory = [];
+      try {
+        localStorage.removeItem(STORAGE_KEY_BATCH_HISTORY);
+      } catch(err) {}
+      renderBatchHistoryDropdown();
+      triggerToast('Đã xóa toàn bộ lịch sử thay thế');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#batch-replace-bar')) {
+        batchHistoryDropdown.classList.remove('show');
+        btnBatchHistory.classList.remove('active');
+      }
+    });
+
+    function openBatchBar() {
+      batchReplaceBar.classList.add('active');
+      btnToggleBatch.classList.add('active');
+      historyNavIndex = -1;
+      batchReplaceInput.focus();
+      batchReplaceInput.select();
+    }
+
+    function closeBatchBar() {
+      batchReplaceBar.classList.remove('active');
+      btnToggleBatch.classList.remove('active');
+      btnBatchPlay.classList.remove('running');
+      batchHistoryDropdown.classList.remove('show');
+      btnBatchHistory.classList.remove('active');
+      historyNavIndex = -1;
+      isBatchRunning = false;
+      editor.focus();
+    }
+
+    btnToggleBatch.addEventListener('click', () => {
+      if (batchReplaceBar.classList.contains('active')) {
+        closeBatchBar();
+      } else {
+        openBatchBar();
+      }
+    });
+
+    btnBatchClose.addEventListener('click', closeBatchBar);
+
+    async function executeBatchReplace() {
+      if (isBatchRunning) return;
+
+      const currentTab = getActiveTab();
+      if (!currentTab) {
+        triggerToast('Vui lòng mở tài liệu trước khi thực hiện!', true);
+        return;
+      }
+
+      const rawInput = batchReplaceInput.value;
+      if (!rawInput.trim()) {
+        triggerToast('Vui lòng nhập chuỗi theo mẫu: {A|B}{C|D}', true);
+        batchReplaceInput.focus();
+        return;
+      }
+
+      const replaceList = [];
+
+      const bracketRegex = /\{([^|{}]+)\|([^{}]*)\}/g;
+      let bracketMatch;
+      while ((bracketMatch = bracketRegex.exec(rawInput)) !== null) {
+        const fromStr = bracketMatch[1];
+        const toStr = bracketMatch[2];
+        if (fromStr.length > 0) {
+          replaceList.push({ from: fromStr, to: toStr });
+        }
+      }
+
+      if (replaceList.length === 0) {
+        const pairsRaw = rawInput.split(/[;\r\n]+/).filter(item => item.length > 0);
+        for (const pair of pairsRaw) {
+          const slashIndex = pair.indexOf('/');
+          if (slashIndex === -1) continue;
+
+          const fromStr = pair.slice(0, slashIndex);
+          const toStr = pair.slice(slashIndex + 1);
+
+          if (fromStr.length > 0) {
+            replaceList.push({ from: fromStr, to: toStr });
+          }
+        }
+      }
+
+      if (replaceList.length === 0) {
+        triggerToast('Không có cặp {Tìm|Thay} hợp lệ nào!', true);
+        return;
+      }
+
+      saveBatchPatternToHistory(rawInput);
+      historyNavIndex = -1;
+
+      isBatchRunning = true;
+      btnBatchPlay.classList.add('running');
+      btnBatchPlay.title = 'Đang tiến hành thay thế...';
+
+      let text = editor.value;
+      let totalReplacedOccurrences = 0;
+
+      await new Promise(res => setTimeout(res, 240));
+
+      try {
+        replaceList.forEach(({ from, to }) => {
+          const escaped = from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const regex = new RegExp(escaped, 'g');
+          const matchCount = (text.match(regex) || []).length;
+          if (matchCount > 0) {
+            totalReplacedOccurrences += matchCount;
+            text = text.replace(regex, to);
+          }
+        });
+
+        if (text !== editor.value) {
+          editor.value = text;
+          editor.dispatchEvent(new Event('input'));
+          triggerToast(`Đã thay thế ${totalReplacedOccurrences} lần xuất hiện (${replaceList.length} quy tắc)`);
+        } else {
+          triggerToast('Không tìm thấy chuỗi nào phù hợp để thay thế');
+        }
+      } catch (err) {
+        console.error('Lỗi Batch Replace:', err);
+        triggerToast('Lỗi trong quá trình thay thế chuỗi!', true);
+      } finally {
+        setTimeout(() => {
+          btnBatchPlay.classList.remove('running');
+          btnBatchPlay.title = 'Bắt đầu thay thế lần lượt';
+          isBatchRunning = false;
+        }, 300);
+      }
+    }
+
+    btnBatchPlay.addEventListener('click', executeBatchReplace);
+
+    batchReplaceInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        batchHistoryDropdown.classList.remove('show');
+        btnBatchHistory.classList.remove('active');
+        executeBatchReplace();
+      } else if (e.key === 'Escape') {
+        if (batchHistoryDropdown.classList.contains('show')) {
+          batchHistoryDropdown.classList.remove('show');
+          btnBatchHistory.classList.remove('active');
+        } else {
+          closeBatchBar();
+        }
+      } else if (e.key === 'ArrowUp') {
+        if (batchHistory.length > 0) {
+          e.preventDefault();
+          if (historyNavIndex < batchHistory.length - 1) {
+            historyNavIndex++;
+            batchReplaceInput.value = batchHistory[historyNavIndex];
+          }
+        }
+      } else if (e.key === 'ArrowDown') {
+        if (batchHistory.length > 0) {
+          e.preventDefault();
+          if (historyNavIndex > 0) {
+            historyNavIndex--;
+            batchReplaceInput.value = batchHistory[historyNavIndex];
+          } else if (historyNavIndex === 0) {
+            historyNavIndex = -1;
+            batchReplaceInput.value = '';
+          }
+        }
+      }
+    });
+
+    // ==========================================
+    // TÌM KIẾM & THAY THẾ (Ctrl+F)
+    // ==========================================
     function openFindWidget(focusReplace = false) {
       if (!getActiveTab()) {
         triggerToast('Vui lòng mở một tệp trước!', true);
@@ -1578,15 +2055,29 @@
         btnOpen.click();
       } else if (isCmdOrCtrl && e.key.toLowerCase() === 's') {
         e.preventDefault();
-        if (!btnSave.disabled) performSave();
+        performSave();
       } else if (isCmdOrCtrl && e.key.toLowerCase() === 'f') {
         e.preventDefault();
         openFindWidget(false);
       } else if (isCmdOrCtrl && e.key.toLowerCase() === 'h') {
         e.preventDefault();
         openFindWidget(true);
-      } else if (e.key === 'Escape' && frWidget.classList.contains('active')) {
-        closeFindWidget();
+      } else if (e.key === 'Escape') {
+        if (frWidget.classList.contains('active')) closeFindWidget();
+        if (batchReplaceBar.classList.contains('active')) closeBatchBar();
+      }
+    });
+
+    // Cảnh báo khi tắt/tải lại tab trình duyệt nếu còn dữ liệu chưa lưu
+    window.addEventListener('beforeunload', (e) => {
+      const currentTab = getActiveTab();
+      if (currentTab && currentTab.content !== editor.value) {
+        currentTab.isDirty = true;
+      }
+      const hasDirtyTabs = openTabs.some(t => t.isDirty);
+      if (hasDirtyTabs) {
+        e.preventDefault();
+        e.returnValue = '';
       }
     });
 
@@ -1609,6 +2100,9 @@
         }
       });
     }
+
+    // Khởi tạo ngay 1 tab nháp sẵn sàng nhập liệu ngay khi load trang
+    createScratchTab('');
   </script>
 </body>
 </html>
